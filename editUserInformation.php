@@ -11,10 +11,8 @@ $user_identity = $_SESSION['user_identity'];
      exit;
   }
 
-if(($user_identity == "external") || ($user_identity == "external_nonapproved")){
-	$query = "SELECT * FROM external_user WHERE username = '".$username."'";
-}else if($user_identity == "internal"){
-	$query = "SELECT * FROM internal_user WHERE username = '".$username."'";
+if(($user_identity == "normal") || ($user_identity == "normal_nonapproved")){
+	$query = "SELECT * FROM normal_user WHERE username = '".$username."'";
 }else if($user_identity == "admin"){
 	$query = "SELECT * FROM admin_user WHERE username = '".$username."'";
 }else{
@@ -57,10 +55,22 @@ cursor: pointer;
 }
 
 </style>
+<!-- Below javascript libraries enable the function of "required" for ie and safari-->
+<!-- cdn for modernizr, if you haven't included it already -->
+<script src="http://cdn.jsdelivr.net/webshim/1.12.4/extras/modernizr-custom.js"></script>
+<!-- polyfiller file to detect and load polyfills -->
+<script src="http://cdn.jsdelivr.net/webshim/1.12.4/polyfiller.js"></script>
+<script>
+  webshims.activeLang('en-AU'); //Set the format of the date to mm/dd/yyyy
+  webshims.setOptions('waitReady', false);
+  webshims.polyfill('forms forms-ext');
+</script>
+
 <script type="text/javascript" src="js/jquery-1.11.0.min.js"></script>
 <script type="text/javascript" src="js/jquery.leanModal.min.js"></script>
 <script language="javascript" src="js/jquery.js"></script>
 <script language="javascript" src="js/passwordStrengthMeter.js"></script>
+<script type="text/javascript" src="js/jquery.mmenu.min.js"></script>
 <script type="text/javascript">
 // Script - login.js
 
@@ -92,7 +102,7 @@ function validateForm() {
     var pos3 = phone.value.search(/^\+65[689][\d]{7}$/);
 
     if(pos3!=0){
-      alert("The phone number you typed in not in the proper format, please follow +6562345678");
+      alert("The phone number you typed in not in the proper format, please follow +6512345678");
       return false;
     }
 
@@ -147,9 +157,9 @@ function editPhone(){
             document.getElementById("Phone").select();
 }
 
-function editCompany(){
-            document.getElementById("Company").readOnly = false;
-            document.getElementById("Company").select();
+function editFaculty(){
+            document.getElementById("Faculty").readOnly = false;
+            document.getElementById("Faculty").select();
 }
 </script>
 
@@ -192,6 +202,16 @@ td.input{
 width:52%;
 }
 </style>
+<link type="text/css" rel="stylesheet" href="jquery.mmenu.css" />
+<script type="text/javascript">
+$(document).ready(function() {
+    // run test on initial page load
+    checkSize();
+
+    // run test on resize of the window
+    $(window).resize(checkSize);
+});
+</script>
 </head>
 
 <body>
@@ -204,13 +224,14 @@ width:52%;
     <h2 class="title">Centre for Optical Fibre Technology</h2>
    </div>
   </header>
-  <div class="cssmenu"><ul>
+  <div id="burger" style="width:100%; background-color: #003478; height: 35px; display: none;"><a href="#menu"><img class="hamburger" src="Image/Icon/burger.png" alt="=" ></a></div>
+   <nav class="cssmenu" id="menu"><ul>
        <span id="nav_first"><li><a id = "modal_trigger" href="#modal">Login</a></li></span>
          <span id="nav_hide" style="display:none"></span>
            <li><a href="results.php">Facility List</a></li>
            <li><a href="orderHistory.php">Order History</a></li>
        </ul>
-  </div>
+  </nav>
 
 <?php
 
@@ -261,11 +282,11 @@ if (isset($_SESSION['valid_user'])){ ?>
 </script>
   
 
-<div class="content"> 
+<div class="content" style="font-size:0.9em;"> 
    <h3 style="text-align:center;color:#0b78a1;margin-top:50px;">My Information</h3><hr>
   <form id="infoForm" action="processEditUserInfo.php" method="post" style="text-align: center;">
   	<table cellspacing="20"> 
-  		<?php if(($user_identity == "external") || ($user_identity == "external_nonapproved")){?>
+  		<?php if(($user_identity == "normal") || ($user_identity == "normal_nonapproved")){?>
   		 <tr><td class="tag">Registration Date:</td>
 		<td><p style="margin-left:50px;"><?php echo $row['registration_date']; ?></p></td></tr>
 		<?php }?>
@@ -290,9 +311,9 @@ if (isset($_SESSION['valid_user'])){ ?>
 		<tr><td class="tag">Phone:</td>
 		<td class="input"><input type="text" name="Phone" id="Phone" size = "30" value="<?php echo $row['phone']?>" required class="box" readonly></td>
 		<td><a onclick="editPhone()" class="edit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Edit</a></td></tr>
-	    <tr><td class="tag">Company:</td>
-	    <td class="input"><input type="text" name="Company" id="Company" size = "30" value="<?php echo $row['company']?>" required class="box" readonly></td>
-		<td><a onclick="editCompany()" class="edit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Edit</a></td></tr>
+	    <tr><td class="tag">Faculty:</td>
+	    <td class="input"><input type="text" name="Faculty" id="Faculty" size = "30" value="<?php echo $row['faculty']?>" required class="box" readonly></td>
+		<td><a onclick="editFaculty()" class="edit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Edit</a></td></tr>
     <tr><td colspan="3" style="text-align:center"><input type="submit" name="Submit" id="Submit" value="Save Changes" class="button">
     </tr>
 	</table>
@@ -308,4 +329,14 @@ if (isset($_SESSION['valid_user'])){ ?>
 </footer>
 </div>
 </body>
+<script type="text/javascript">
+function checkSize(){
+  if ($(".title").css("float") != "right" ){
+    document.getElementById("burger").style.display = '';
+    $(function() {
+      $('nav#menu').mmenu();
+    });
+  }
+}
+</script>
 </html>

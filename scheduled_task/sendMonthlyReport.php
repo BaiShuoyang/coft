@@ -1,5 +1,5 @@
 <?php
-
+//This php file should be executed on the last day of every month
 	require_once ('../jpgraph/src/jpgraph.php');
 	require_once ('../jpgraph/src/jpgraph_pie.php');
 	require_once ('../jpgraph/src/jpgraph_bar.php');
@@ -54,7 +54,7 @@
 			// Adjust the start time for a day
 			$graph_line->xaxis->scale->SetDateAlign(MONTHADJ_1);
 			 
-			// Force labels to only be displayed every one day
+			// Force labels to only be displayed every one week
 			$graph_line->xaxis->scale->ticks->Set(24*3600*7);
 			 
 			// Use hour:minute format for the labels
@@ -87,6 +87,7 @@
 				$datay[]=(int) $row_date['count'];
 				
 			}
+
 			// echo "after one facility ".$k."<br>";
 			// var_dump($datax);
 			// echo "<br>";
@@ -180,6 +181,7 @@
 		$graph_bar->title->Set("Booking Numbers for ".date('F'));
 		$graph_bar->xaxis->SetTickLabels($data_name);
 		$graph_bar->xaxis->title->Set('Facility');
+		$graph_bar->xaxis->SetTitleMargin(50);//Margin of axis title to the axis
 		$graph_bar->xaxis->SetLabelAngle(90);
 		$graph_bar->yaxis->title->Set('Number');
 		 
@@ -344,9 +346,10 @@
 		$graph_bar2->Add($bplot2);
 		 
 		// Setup the titles
-		$graph_bar2->title->Set("Booking Numbers for ".date('F'));
+		$graph_bar2->title->Set("Booking Numbers for ".date('Y'));
 		$graph_bar2->xaxis->SetTickLabels($data_name_history);
 		$graph_bar2->xaxis->title->Set('Facility');
+		$graph_bar2->xaxis->SetTitleMargin(50);//Margin of axis title to the axis
 		$graph_bar2->xaxis->SetLabelAngle(90);
 		$graph_bar2->yaxis->title->Set('Number');
 		 
@@ -391,7 +394,7 @@
  			$datax3 = array();
 
 			$query_date3 = "SELECT COUNT(username) AS count, registration_date
-					FROM external_user
+					FROM normal_user
 					GROUP BY registration_date";
 
 			$result_date3 = $db_conn->query($query_date3);
@@ -456,13 +459,17 @@
 
 		$row_date_profit = $result_date_profit->fetch_assoc();
 
-		$graph_profit->title->Set("Profit Distribution for ".$row_date_profit['booking_year']); 
+		$graph_profit->title->Set("Profit Distribution for ".date("Y")." in SGD"); 
 
 		for ($i=0; $i <$num_results_date_profit; $i++) {
 
 						// var_dump($row_date_profit);
 						// $datax_profit[]=strtotime("01-".$row_date_profit['booking_month']."-".$row_date_profit['booking_year']);
 						$datay_profit_external[$row_date_profit['booking_month']-1]=(float) $row_date_profit['profit'];
+						if($row_date_profit['booking_year'] != date("Y")){
+							//If the current row is not for current year, set to the y axis amount to zero
+							$datay_profit_external[$row_date_profit['booking_month']-1] = 0.0;
+						}
 						$row_date_profit = $result_date_profit->fetch_assoc();
 						
 		}
@@ -500,7 +507,10 @@
 						// var_dump($row_date_profit_internal);
 						// $datax_profit[]=strtotime("01-".$row_date_profit_internal['booking_month']."-".$row_date_profit_internal['booking_year']);
 						$datay_profit_internal[$row_date_profit_internal['booking_month']-1]=(float) $row_date_profit_internal['profit'];
-						
+						if($row_date_profit_internal['booking_year'] != date("Y")){
+							//If the current row is not for current year, set to the y axis amount to zero
+							$datay_profit_internal[$row_date_profit_internal['booking_month']-1] = 0.0;
+						}
 						
 		}
 
@@ -522,8 +532,8 @@
 		$gbplot = new  GroupBarPlot (array( $b1plot_external , $b1plot_internal ));
 		$gbplot->SetWidth(0.6);
 
-		$graph_profit->yaxis->title->Set('SGD$');
-		 
+		// $graph_profit->yaxis->title->Set('SGD$');
+		// $graph_profit->yaxis->SetTitleMargin(50);//Margin of axis title to the axis
 		$graph_profit->title->SetFont(FF_FONT1,FS_BOLD);
 		$graph_profit->yaxis->title->SetFont(FF_FONT1,FS_BOLD);
 
@@ -565,7 +575,7 @@
 	$random_hash = md5(date('r', time())); 
 
 	//define the headers we want passed. Note that they are separated with \r\n 
-	$headers = "From: austinbai927@gmail.com\r\nReply-To: austinbai927@gmail.com";
+	$headers = "From: Centre for Optical Fibre Technology"; 
 
 	//add boundary string and mime type specification 
 	$headers .= "\r\nContent-Type: multipart/mixed; boundary=\"PHP-mixed-".$random_hash."\""; 
@@ -607,15 +617,16 @@ This is an automatically generated confirmation email. Please do not reply direc
 
 	$result_admin = $db_conn->query($query_admin);
 
-	$num_result_admin = $result_admin->num_rows;
+    if(!$result_admin){
+	       echo '<script type="text/javascript">alert("Your query to retrieve admin information failed.");</script>';
+	       exit;
+    }
 
-	for($v=0; $v<$num_result_admin; $v++){
-		$row_admin = $result_admin->fetch_assoc();
-		$to = $row_admin['email'];
-		// send email
-	    mail($to,"Monthly Report for COFT facilities",$message, $headers,'-faustinbai927@gmail.com');
+	$row_admin = $result_admin->fetch_assoc();
+	$to = $row_admin['email'];
+	// send email
+    mail($to,"Monthly Report for COFT facilities",$message, $headers);
 
-	}
 
 	$db_conn->close();
 

@@ -4,28 +4,16 @@
 session_start();
 
 $itemname = $_POST['itemname'];
-$start = $_POST['start'];
-$end = $_POST['end'];
-$message = $_POST['message'];
-if(isset($_POST['price'])){
-	$price = $_POST['price'];
-  if(!is_numeric($price)){
-    echo '<script type="text/javascript">alert("Error: The price you input is not a number.");</script>';
-    unset($price);
-    exit();
-  }
+$start_old = $_POST['start'];
+$end_old = $_POST['end'];
+$start = DateTime::createFromFormat('d/m/Y H:i', $start_old);
+$end = DateTime::createFromFormat('d/m/Y H:i', $end_old);
+$start = $start->format('Y/m/d H:i');
+$end = $end->format('Y/m/d H:i');
 
-}
+$message = $_POST['message'];
 if(isset($_POST['user_identity'])){
 	$identity = $_POST['user_identity'];
-}
-if(isset($_POST['number'])){
-	$number = $_POST['number'];
-  if(!is_numeric($number)){
-    echo '<script type="text/javascript">alert("Error: The number of fibre you input is not a number.");</script>';
-    unset($number);
-    exit();
-  }
 }
 
 $username = $_SESSION['valid_user'];
@@ -43,7 +31,7 @@ $total = 0;
 		     exit;
 		  }
 
-		$query = "select * from item where facility_name = '".$itemname."'";
+		  $query = "SELECT * FROM item WHERE facility_name = '".$itemname."'";
 
   		$result = $db->query($query);
 
@@ -56,44 +44,51 @@ $total = 0;
 
   		$row = $result->fetch_assoc();
 
-  		if($row['isFabricationFacility']==1){
-  			$total = $price * $number;
-  		}else{
 			$start_time = strtotime($start);
 			$end_time = strtotime($end);
-	  		$time_difference = round(($end_time - $start_time)/(60*60),2); //In hours (float)
+	  	$time_difference = round(($end_time - $start_time)/(60*60),2); //In hours (float)
 
-	  		if(($_SESSION['user_identity']=="internal") || ($_SESSION['user_identity']=="admin")){
-	  			$price_per_day = $row['price'] * $row['charge_internal'];
-	  		}else if($_SESSION['user_identity']=="external"){
-	  			$price_per_day = $row['price'] * $row['charge_external'];
+      if($row['isCleanRoomFacility'] == 1){
+        //For clean room facility, the price field in database is price per hour
+        $total = $row['price'] * $time_difference;
+        $price_per_hour = $row['price'];
+
+      }else{
+        //For non clean room facility, the price field in database is item price
+        $price_per_hour = $row['price'] * $row['charge_internal'];
+        $total = $price_per_hour * $time_difference;
+      }
+	  		if($identity=="internal"){
+	  			$total = $total * 1;
+	  		}else if($identity=="external"){
+	  			$total = $total * $row['charge_external'] / $row['charge_internal'];
+
+          if($row['isCleanRoomFacility'] == 1){
+              $total = $total + 100; //Plus the $100 for clean room facilities
+          }
+
+          $price_per_hour = $price_per_hour * $row['charge_external'] / $row['charge_internal'];
 	  		}else{
 	  			echo '<script type="text/javascript">alert("There is problem with user identity.");</script>';
 	  		    exit;
 	  		}
-  		
-  			$total = $time_difference / 10 * $price_per_day;
-  		}
 
-  		if($_SESSION['user_identity']=="internal"){
-  			$query2 = "select * from internal_user where username = '".$username."'";
-  		}else if($_SESSION['user_identity']=="admin"){
-  			$query2 = "select * from admin_user where username = '".$username."'";
-  		}else{
-  			$query2 = "select * from external_user where username = '".$username."'";
-  		}
+       if($_SESSION['user_identity']=="normal"){
+          $query2 = "SELECT * FROM normal_user WHERE username = '".$username."'";
+          }else if($_SESSION['user_identity']=="admin"){
+            $query2 = "SELECT * FROM admin_user WHERE username = '".$username."'";
+          }
 
-  		$result2 = $db->query($query2);
+          $result2 = $db->query($query2);
 
-  		$num_results2 = $result2->num_rows;
+          $num_results2 = $result2->num_rows;
 
-  		if($num_results2==0){
-  			echo '<script type="text/javascript">alert("No user information in database.");</script>';
-  		    exit;
-  		}
+          if($num_results2==0){
+            echo '<script type="text/javascript">alert("No user information in database.");</script>';
+              exit;
+          }
 
-  		$row_user = $result2->fetch_assoc();
-
+          $row_user = $result2->fetch_assoc();
 ?>
 <html lang="en">
 <head>
@@ -122,22 +117,31 @@ function validateForm() {
     'use strict';
     
     // Get references to the form elements:
-    var newEmail = document.getElementById("newEmail");
-    var newPhone = document.getElementById("newPhone");
+    var billEmail = document.getElementById("billEmail");
+    var billPhone = document.getElementById("billPhone");
+    var billPostal = document.getElementById("billPostal");
 
-    var pos1 = newEmail.value.search(/^[\w.-]+@[\w.-]+\.[\w.-]{2,4}$/);
+    var pos1 = billEmail.value.search(/^[\w.-]+@[\w.-]+\.[\w.-]{2,4}$/);
 
     if(pos1!=0){
       alert("The email you typed is not in proper format.");
       return false;
     }
 
-    var pos2 = newPhone.value.search(/^\+65[689][\d]{7}$/);
+    var pos2 = billPhone.value.search(/^\+65[689][\d]{7}$/);
 
     if(pos2!=0){
-      alert("The phone number you typed in not in the proper format, please follow +6562345678");
+      alert("The phone number you typed in not in the proper format, please follow +6512345678");
       return false;
     }
+
+    var pos3 = billPostal.value.search(/^[\d]{6}$/);
+
+    if(pos3!=0){
+      alert("The postal code you typed is not in the proper format");
+      return false;
+    }
+
 
 
     
@@ -159,6 +163,29 @@ function init() {
 // Assign an event listener to the window's load event:
 window.onload = init;
 </script>
+<!-- Below javascript libraries enable the function of "required" for ie and safari-->
+<!-- cdn for modernizr, if you haven't included it already -->
+<script src="http://cdn.jsdelivr.net/webshim/1.12.4/extras/modernizr-custom.js"></script>
+<!-- polyfiller file to detect and load polyfills -->
+<script src="http://cdn.jsdelivr.net/webshim/1.12.4/polyfiller.js"></script>
+<script>
+  webshims.activeLang('en-AU'); //Set the format of the date to mm/dd/yyyy
+  webshims.setOptions('waitReady', false);
+  webshims.polyfill('forms forms-ext');
+</script>
+
+<script type="text/javascript" src="js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="js/jquery.mmenu.min.js"></script>
+<link type="text/css" rel="stylesheet" href="jquery.mmenu.css" />
+<script type="text/javascript">
+$(document).ready(function() {
+    // run test on initial page load
+    checkSize();
+
+    // run test on resize of the window
+    $(window).resize(checkSize);
+});
+</script>
 </head>
 
 <body>
@@ -171,13 +198,14 @@ window.onload = init;
     <h2 class="title">Centre for Optical Fibre Technology</h2>
    </div>
   </header>
-  <div class="cssmenu"><ul>
+  <div id="burger" style="width:100%; background-color: #003478; height: 35px; display: none;"><a href="#menu"><img class="hamburger" src="Image/Icon/burger.png" alt="=" ></a></div>
+<nav class="cssmenu" id="menu"><ul>
        <span id="nav_first"><li><a id = "modal_trigger" href="#modal">Login</a></li></span>
          <span id="nav_hide" style="display:none"></span>
            <li><a href="results.php">Facility List</a></li>
            <li><a href="orderHistory.php">Order History</a></li>
        </ul>
-  </div>
+  </nav>
   <div id="crumb">
        <ul>
         <li><a href="http://www.coft.eee.ntu.edu.sg/aboutUs/Pages/CentreFacilities.aspx">COFT</a></li>
@@ -237,46 +265,48 @@ if (isset($_SESSION['valid_user'])){ ?>
   $("#modal_trigger").leanModal({top : 200, overlay : 0.6, closeButton: ".back_btn" });
 </script>
 
-<div class="content" style="min-height:450px"> 
-<h2 style="text-align:center;margin-top:50px">Booking Confirmation</h2>
+<div class="content" style="min-height:450px; font-size:0.9em;"> 
+<h3 style="text-align:center;margin-top:50px; color:#0b78a1">Booking Confirmation</h3>
 	<table border="0" style="width:80%" cellspacing="15">
 		<tr><td class="tag">Facility Name:</td>
 			<td><?php echo $itemname ?></td>
 		</tr>
 		<tr><td class="tag">Time:</td>
-			<td><?php echo $start." - ".$end ?></td>
+			<td><?php echo $start_old." - ".$end_old ?></td>
 		</tr>
-		<?php if($row['isFabricationFacility']==1){?>
-		<tr><td class="tag">Basic Price per Fibre:</td>
-			<td>SGD <?php echo $price ?></td>
+		<tr><td class="tag">Basic Price per Hour:</td>
+			<td>SGD <?php echo $price_per_hour ?></td>
 		</tr>
-		<?php }else{?>
-		<tr><td class="tag">Basic Price per day:</td>
-			<td>SGD <?php echo $price_per_day ?></td>
-		</tr>
-		<?php }?>
 		<tr><td class="tag">Total Price:</td>
 			<td>SGD <?php echo $total ?></td>
 		</tr>
 		<tr><td class="tag">Message:</td>
 			<td><?php echo $message ?></td>
 		</tr>
-	<table>
+	</table>
 		<hr>
 	<form id="confirmForm" method="POST" action="processCheckout.php">	
 	<table border="0" cellspacing="15">
-		<caption><h2>Reservation Contact</h2></caption>
+		<caption><h3 style="text-align:center;color:#0b78a1">Billing Information</h3></caption>
 		<tr><td class="tag">Name:</td>
-			<td><p style="margin-left: 50px;"><?php echo $row_user['username'] ?></p></td>
+			<td><input type="text" required value="<?php if($identity == "internal"){echo $row_user['username'];} ?>" class="box" id="billName" name="billName"></td>
 		</tr>
 		<tr><td class="tag">Email:</td>
-			<td><input type="text" required value="<?php echo $row_user['email'] ?>" class="box" id="newEmail" name="newEmail"></td>
+			<td><input type="text" required value="<?php if($identity == "internal"){echo $row_user['email'];} ?>" class="box" id="billEmail" name="billEmail"></td>
 		</tr>
 		<tr><td class="tag">Phone:</td>
-			<td><input type="text" required value="<?php echo $row_user['phone'] ?>" class="box" id="newPhone" name="newPhone"></td>
+			<td><input type="text" required value="<?php if($identity == "internal"){echo $row_user['phone'];} ?>" class="box" id="billPhone" name="billPhone"></td>
 		</tr>
-		<tr><td colspan="2" style="text-align:center"><h4>* Upon checking out, an email with NTU invoice will be sent to your email address.</h4></td></tr>
-		<tr><td></td><td><input type="submit" class="button" value="Check Out">
+    <tr><td class="tag">Address Line 1:</td>
+    <td><input type="text" name="billAddline1" id="billAddline1" value="<?php if($identity == "internal"){echo $row_user['addline1'];} ?>" size = "30" required class="box"></td></tr>
+    <tr><td class="tag">Address Line 2:<br>(Optional)</td>
+    <td><input type="text" name="billAddline2" id="billAddline2" value="<?php if($identity == "internal"){echo $row_user['addline2'];} ?>" size = "30" class="box"></td></tr>
+    <tr><td class="tag">Postal Code:</td>
+    <td><input type="text" name="billPostal" id="billPostal" value="<?php if($identity == "internal"){echo $row_user['postalcode'];} ?>" size = "30" required class="box"></td></tr>
+    <tr><td class="tag">Organization:</td>
+    <td><input type="text" name="Organization" id="Organization" value="<?php if($identity == "internal"){echo $row_user['faculty'];} ?>" size = "30" required class="box"></td></tr>
+		<tr><td colspan="2" style="text-align:center"><h4>* Upon checking out, a confirmation email will be sent to your email address.</h4></td></tr>
+		<tr><td colspan="2" style="text-align:center"><input type="submit" class="button" value="Check Out">
 			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 			<a href="item.php?itemname=<?php echo $itemname?>" class="back_btn">Cancel</a></td>
 		</tr>
@@ -287,9 +317,9 @@ if (isset($_SESSION['valid_user'])){ ?>
 	<input type="hidden" value="<?php echo $message ?>" id="message" name="message">
 	<input type="hidden" value="<?php echo $total ?>" id="total_price" name="total_price">
 	<input type="hidden" value="<?php echo $row['need_remind'] ?>" id="need_remind" name="need_remind">
-	<?php if($row['isFabricationFacility']==1){?>
 	<input type="hidden" value="<?php echo $identity; ?>" id="identity" name="identity">
-  	<?php }?>
+  <input type="hidden" value="<?php echo $row_user['email'];?>" id="userEmail" name="userEmail">
+  <!-- Above email is the email of current user, this will be used to send confirmation email-->
 
 	</form> 
 </div>
@@ -303,5 +333,16 @@ if (isset($_SESSION['valid_user'])){ ?>
 		$result->free();
         $db->close();
 ?>
+<script type="text/javascript">
+function checkSize(){
+  if ($(".title").css("float") != "right" ){
+    document.getElementById("burger").style.display = '';
+    $(function() {
+      $('nav#menu').mmenu();
+    });
+  }
+}
+</script>
 
 </html>
+

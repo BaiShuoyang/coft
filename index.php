@@ -7,8 +7,11 @@ session_start();
 <head>
 <title>Paperless Lab</title>
 <meta charset="utf-8">
+
 <script type="text/javascript" src="js/jquery-1.11.0.min.js"></script>
 <script type="text/javascript" src="js/jquery.leanModal.min.js"></script>
+<script type="text/javascript" src="js/jquery.mmenu.min.js"></script>
+
 <style type="text/css">
 
 a:not(.back_btn) {
@@ -22,6 +25,16 @@ color: #22b8f0;
 
 </style>
 <link rel="stylesheet" href="welcome.css">
+<link type="text/css" rel="stylesheet" href="jquery.mmenu.css" />
+<script type="text/javascript">
+$(document).ready(function() {
+    // run test on initial page load
+    checkSize();
+
+    // run test on resize of the window
+    $(window).resize(checkSize);
+});
+</script>
 </head>
 <body>
 <div id="wrapper">
@@ -33,13 +46,14 @@ color: #22b8f0;
 	 	<h2 class="title">Centre for Optical Fibre Technology</h2>
 	 </div>
   </header>
-  <div class="cssmenu"><ul>
+  <div id="burger" style="width:100%; background-color: #003478; height: 35px; display: none;"><a href="#menu"><img class="hamburger" src="Image/Icon/burger.png" alt="=" ></a></div>
+  <nav class="cssmenu" id="menu"><ul>
   		 <!-- <span id="nav_first"><li><a id = "modal_trigger" href="#modal">Login</a></li></span> -->
          <span id="nav_hide" style="display:none"></span>
          	 <li><a href="results.php">Facility List</a></li>
 	         <li><a href="orderHistory.php">Order History</a></li>
        </ul>
-  </div>
+  </nav>
 
 
 <?php
@@ -99,13 +113,13 @@ if (isset($_SESSION['valid_user'])){ ?>
 		</div>
 	<?php }?>
 	<div class="messageWelcome">
-	<h3>Welcome to Facilities Booking System</h3>
-	<p>If you are NTU staff or student, please log in using your NTU account.</p>
-	<p>If you are external users, please click "Create an account".</p>
+	<h3>Welcome to Facility Booking System</h3>
+	<p>Please log in using your registered account.</p>
+	<p>If you are new users, please click "Create an account".</p>
 	</div>
 
 	<?php if(isset($_SESSION['valid_user'])){?>
-          <div style="margin:50px auto;height:200px"><a href='logout.php' class="back_btn">Sign Out</a></div>
+          <div style="margin:50px auto;height:200px; padding-left:60px;"><a href='logout.php' class="back_btn">Sign Out</a></div>
           <?php }else{?>
 	<form id="loginForm" action="processLogin.php" method="post" class="loginForm">
   	<table cellspacing="10"> 
@@ -123,6 +137,34 @@ if (isset($_SESSION['valid_user'])){ ?>
 </footer>
 </div>
 </body>
+<script type="text/javascript">
+//This JavaScript is to show the placeholder in early IE version
+function supports_input_placeholder() {
+        var i = document.createElement('input');
+        return 'placeholder' in i;
+    }
+
+if (!supports_input_placeholder()) {
+    var fields = document.getElementsByTagName('INPUT');
+    for (var i = 0; i < fields.length; i++) {
+        if (fields[i].hasAttribute('placeholder')) {
+            fields[i].defaultValue = fields[i].getAttribute('placeholder');
+            fields[i].onfocus = function () { if (this.value == this.defaultValue) this.value = ''; }
+            fields[i].onblur = function () { if (this.value == '') this.value = this.defaultValue; }
+        }
+    }
+}
+</script>
+<script type="text/javascript">
+function checkSize(){
+	if ($(".title").css("float") != "right" ){
+	 	document.getElementById("burger").style.display = '';
+		$(function() {
+			$('nav#menu').mmenu();
+		});
+	}
+}
+</script>
 </html>
 
 

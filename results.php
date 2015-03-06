@@ -1,14 +1,14 @@
-<?php
+<!DOCTYPE html><?php
 session_start();
 
 ?>
-<!DOCTYPE html>
 <html lang="en">
 <head>
 <title>Paperless Lab</title>
 <meta charset="utf-8">
 <script src="js/jquery-1.11.0.min.js"></script>
 <script type="text/javascript" src="js/jquery.leanModal.min.js"></script>
+<script type="text/javascript" src="js/jquery.mmenu.min.js"></script>
 <style type="text/css">
 .notification{
   -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, .7);
@@ -17,11 +17,14 @@ session_start();
   -moz-border-radius: 2px;
   box-shadow: 0 1px 1px rgba(0, 0, 0, .7);
   border-radius: 2px;
+  background-color: #fa3c45;
   background-image: -webkit-linear-gradient(#fa3c45, #dc0d17); /* Safari/Chrome */
   background-image: -moz-linear-gradient(#fa3c45, #dc0d17); /* Firefox */
+  background-image: -o-linear-gradient(#fa3c45, #dc0d17); /* Opera */
   background-image: linear-gradient(#fa3c45, #dc0d17);
   background-image: -ms-linear-gradient(#fa3c45, #dc0d17); /* IE10- */
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fa3c45', endColorstr='#dc0d17',GradientType=0 ); /* IE6-9 */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fa3c45', endColorstr='#dc0d17',GradientType=0 ); /* IE6 & IE7 */
+  -ms-filter: "progid:DXImageTransform.Microsoft.gradient( startColorstr='#fa3c45', endColorstr='#dc0d17',GradientType=0 )"; /* IE8 */
   min-height: 13px; 
   padding:1px 3px;
   position:relative;
@@ -57,6 +60,16 @@ function show_editable(){
 
 
 </script>
+<link type="text/css" rel="stylesheet" href="jquery.mmenu.css" />
+<script type="text/javascript">
+$(document).ready(function() {
+    // run test on initial page load
+    checkSize();
+
+    // run test on resize of the window
+    $(window).resize(checkSize);
+});
+</script>
 </head>
 <body>
 <div id="wrapper">
@@ -68,13 +81,14 @@ function show_editable(){
     <h2 class="title">Centre for Optical Fibre Technology</h2>
    </div>
   </header>
-  <div class="cssmenu"><ul>
+  <div id="burger" style="width:100%; background-color: #003478; height: 35px; display: none;"><a href="#menu"><img class="hamburger" src="Image/Icon/burger.png" alt="=" ></a></div>
+   <nav class="cssmenu" id="menu"><ul>
        <span id="nav_first"><li><a id = "modal_trigger" href="#modal">Login</a></li></span>
          <span id="nav_hide" style="display:none"></span>
            <li><a href="results.php">Facility List</a></li>
            <li><a href="orderHistory.php">Order History</a></li>
        </ul>
-  </div>
+  </nav>
   <div id="crumb">
        <ul>
         <li><a href="http://www.coft.eee.ntu.edu.sg/aboutUs/Pages/CentreFacilities.aspx">COFT</a></li>
@@ -158,13 +172,13 @@ if (isset($_SESSION['valid_user'])){ ?>
 
   $num_results = $result->num_rows;
 
-  //For displaying the number of external users waiting to be approved
-  $query_user = "select * from external_user where approved = 0"; 
+  //For displaying the number of normal users waiting to be approved
+  $query_user = "select * from normal_user where approved = 0"; 
   //Approve = 0 means administrator has not approve or deny yet, approve = 1 means the user is approved, approve = -1 means the user is denied
   $result_user = $db->query($query_user);
   $num_results_user = $result_user->num_rows;
 
-  $query_booking = "select * from booking where approved = 0";
+  $query_booking = "SELECT * FROM booking WHERE approved = 1 AND start_event >= CURDATE()";
   $result_booking = $db->query($query_booking);
   $num_results_booking = $result_booking->num_rows;
 
@@ -196,7 +210,7 @@ if (isset($_SESSION['valid_user'])){ ?>
     <form id="announceForm" action="processSaveAnnounce.php" method="post">
       <p style="font-weight:bold; margin-top:5px; color:#003478;">Annoucement:</p>
       <p style="margin-top:5px; color:#003478;" id="text"><?php echo $row_announcement['text']; ?></p>
-      <textarea rows="2" cols="53" required name="Announcement" id="Announcement" style="display:none; resize: none;"><?php echo $row_announcement['text'];?></textarea>
+      <textarea rows="2" cols="45" required name="Announcement" id="Announcement" style="display:none; resize: none; width: 95%;"><?php echo $row_announcement['text'];?></textarea>
       <?php
     if(isset($_SESSION['user_identity'])){
     if($_SESSION['user_identity'] == "admin"){
@@ -239,7 +253,7 @@ if (isset($_SESSION['valid_user'])){ ?>
           </div>
         </td>
         <td width="190px" style="text-align:left">
-          <?php if(($isFab!=1) || ($_SESSION['user_identity']=="internal") || ($_SESSION['user_identity']=="admin")){  
+          <?php if(($isFab!=1) || ($_SESSION['user_identity']=="normal") || ($_SESSION['user_identity']=="admin")){  
               //External users cannot see the check availability button of fab service
             if(($row['start_publish'] <= date("Y-m-d")) && (date("Y-m-d") <= $row['end_publish'])){
               ?><a href="item.php?itemname=<?php echo stripslashes($row['facility_name']) ?>" style="text-decoration:none;text-align:center; font-weight:bold" class="check_btn">Check Availability</a>
@@ -269,4 +283,14 @@ if (isset($_SESSION['valid_user'])){ ?>
       $db->close();
     ?>
 </body>
+<script type="text/javascript">
+function checkSize(){
+  if ($(".title").css("float") != "right" ){
+    document.getElementById("burger").style.display = '';
+    $(function() {
+      $('nav#menu').mmenu();
+    });
+  }
+}
+</script>
 </html>

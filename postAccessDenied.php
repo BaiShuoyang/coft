@@ -1,5 +1,5 @@
 <?php
-//postRegister.php
+//postAccessDenied.php
 session_start();
 
 ?><!DOCTYPE html>
@@ -44,8 +44,9 @@ $(document).ready(function() {
 	 	<h2 class="title">Centre for Optical Fibre Technology</h2>
 	 </div>
   </header>
+
   <div id="burger" style="width:100%; background-color: #003478; height: 35px; display: none;"><a href="#menu"><img class="hamburger" src="Image/Icon/burger.png" alt="=" ></a></div>
-    <nav class="cssmenu" id="menu"><ul>
+   <nav class="cssmenu" id="menu"><ul>
   		 <span id="nav_first"><li><a id = "modal_trigger" href="#modal">Login</a></li></span>
          <span id="nav_hide" style="display:none"></span>
          	 <li><a href="results.php">Facility List</a></li>
@@ -103,12 +104,8 @@ if (isset($_SESSION['valid_user'])){ ?>
 
 
 <div class="content" style="min-height:450px;"> 
-<?php
-if(isset($_SESSION['valid_user']) && ($_SESSION['user_identity'] == "normal_nonapproved")){
-?>
-<h4 style="margin-top:50px">Thank you for your registration. The system administrator will approve your request as soon as possible.</h4>
-<h4>However, you can only use your account once you receive an account approval email from the administrator.</h4>
-<?php }?>
+<h4 style="margin-top:50px">Dear user, you do not have access to this facility. Please try <a href="results.php">other facilities.</a></h4>
+<h4>If you have any queries, you could send email to epshum@ntu.edu.sg.</h4>
 </div>
 <footer>Copyright &copy; 2014
 </footer>

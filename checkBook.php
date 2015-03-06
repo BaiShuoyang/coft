@@ -4,9 +4,13 @@
 
 session_start();
 
-$itemname = $_POST['itemname'];
-$start = $_POST['start'];
-$end = $_POST['end'];
+$itemname = $_GET['itemname'];
+$start = $_GET['start'];
+$end = $_GET['end'];
+$start = DateTime::createFromFormat('d/m/Y H:i', $start);
+$end = DateTime::createFromFormat('d/m/Y H:i', $end);
+$start = $start->format('Y/m/d H:i');
+$end = $end->format('Y/m/d H:i');
 
 $start_day = date('l', strtotime($start));
 $end_day = date('l', strtotime($end));

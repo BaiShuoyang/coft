@@ -6,6 +6,7 @@ body {font-family:Heveltica, Arial, sans-serif;
 	  color:#000;
     font-size: 1em;
      margin-top: 0;
+     min-width:320px;
 }
 
 #wrapper { 
@@ -20,6 +21,14 @@ body {font-family:Heveltica, Arial, sans-serif;
 
 @media screen and (min-width: 600px) {
     /*Apply these CSS styles when the screen width is more than 600px*/
+  body {
+    font-family:Heveltica, Arial, sans-serif;
+    background-color: #fff;
+    color:#000;
+    font-size: 1em;
+    margin-top: 0;
+    min-width:1000px;
+  }
   #wrapper { 
       background-color: #eeeeee; 
       width: 80%;
@@ -68,7 +77,7 @@ body {font-family:Heveltica, Arial, sans-serif;
           background-color: #ffffff;
           color: #000; 
           font-size: 90%; 
-          padding: 0px;
+          padding-bottom: 10px;
           height: 130px;
           width:600px;
           /*background: -webkit-gradient(linear, left top, left bottom, from(#9DC3D1), to(#548da9));
@@ -123,6 +132,14 @@ body {font-family:Heveltica, Arial, sans-serif;
              float: right;
 }
 
+.hamburger{
+  width:25px; 
+  display: block;
+  position: relative; 
+  top:8px; 
+  left:70px; 
+}
+
 footer {font-size:70%;
          text-align: center;
 		     clear: right;
@@ -145,6 +162,18 @@ margin-right: auto;
 tr{
 margin-left: 5px;
 margin-right: 5px;
+}
+
+th{
+  padding: 1px;
+}
+
+@media screen and (min-width: 600px) {
+    /*Apply these CSS styles when the screen width is more than 600px*/
+    th{
+      white-space: nowrap;
+      padding: 3px;
+    }
 }
 
 td{
@@ -224,6 +253,17 @@ outline:none;
 font-family: inherit;
 }
 
+.emailtextarea{
+  resize:none; 
+  font-family: Times New Roman; 
+  color: #000; 
+  margin-left:auto; 
+  margin-right:auto; 
+  display:block;
+  width: 80%;
+  height: 300px;
+}
+
 .cssmenu {
       width: 600px;
       background-color: #003478;
@@ -283,9 +323,9 @@ font-family: inherit;
 }
 
 #crumb{
-  width: 100%;
+  /*width: 100%;*/
   background-color: #EEEEEE;
-  margin: 0;
+  margin-left: 25px;
   padding: 0;
   float:left;
 }
@@ -333,6 +373,13 @@ font-family: inherit;
   }
 
 @media screen and (min-width: 600px) {
+  #crumb{
+    width: 100%;
+    background-color: #EEEEEE;
+    margin: 0;
+    padding: 0;
+    float:left;
+  }
   .loginForm{
     float:right;
     text-align: center;
@@ -459,7 +506,7 @@ cursor:pointer}
 
 .check_btn{
 border:1px solid #b7b7b7; -webkit-border-radius: 3px; -moz-border-radius: 3px;border-radius: 3px;font-size:12px;font-family:arial, helvetica, sans-serif; padding: 10px 10px 10px 10px; text-decoration:none; display:inline-block;text-shadow: -1px -1px 0 rgba(0,0,0,0.3);font-weight:bold; color: #FFFFFF;
- background-color: #d3d3d3; background-image: -webkit-gradient(linear, left top, left bottom, from(#d3d3d3), to(#707070));
+ background-color: #707070; background-image: -webkit-gradient(linear, left top, left bottom, from(#d3d3d3), to(#707070));
  background-image: -webkit-linear-gradient(top, #d3d3d3, #707070);
  background-image: -moz-linear-gradient(top, #d3d3d3, #707070);
  background-image: -ms-linear-gradient(top, #d3d3d3, #707070);
@@ -469,7 +516,7 @@ border:1px solid #b7b7b7; -webkit-border-radius: 3px; -moz-border-radius: 3px;bo
 
 .check_btn:hover{
  border:1px solid #a0a0a0;
- background-color: #bababa; background-image: -webkit-gradient(linear, left top, left bottom, from(#bababa), to(#575757));
+ background-color: #575757; background-image: -webkit-gradient(linear, left top, left bottom, from(#bababa), to(#575757));
  background-image: -webkit-linear-gradient(top, #bababa, #575757);
  background-image: -moz-linear-gradient(top, #bababa, #575757);
  background-image: -ms-linear-gradient(top, #bababa, #575757);
@@ -538,7 +585,6 @@ border:1px solid #b7b7b7; -webkit-border-radius: 3px; -moz-border-radius: 3px;bo
   .logo{
     width:210px;
     margin: auto;
-    padding: auto;
     border:0;
   }
 
@@ -550,6 +596,7 @@ border:1px solid #b7b7b7; -webkit-border-radius: 3px; -moz-border-radius: 3px;bo
     border:0;
   }
 }
+
 
 .img-shadow {
 	position: relative;
@@ -606,10 +653,10 @@ border:1px solid #b7b7b7; -webkit-border-radius: 3px; -moz-border-radius: 3px;bo
   height:15px;
   width: auto;
 }
+
 .popupBody {padding:20px;}
 
-
-/* User Login Form */
+/* User Login Form for modal*/
 .user_login {}
 .user_login label {display: block; margin-bottom:5px;}
 .user_login input[type="text"], .user_login input[type="email"], .user_login input[type="password"] {display: block; width:90%; padding: 10px; border:1px solid #DDD; color:#000;outline:none;}
@@ -650,6 +697,7 @@ fieldset {
 .messageItem{
   height:250px; 
   overflow:scroll;
+  margin-bottom: 25px;
 }
 
 @media screen and (min-width: 600px){

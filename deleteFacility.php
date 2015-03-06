@@ -8,6 +8,7 @@ session_start();
 <meta charset="utf-8">
 <script type="text/javascript" src="js/jquery-1.11.0.min.js"></script>
 <script type="text/javascript" src="js/jquery.leanModal.min.js"></script>
+<script type="text/javascript" src="js/jquery.mmenu.min.js"></script>
 <script type="text/javascript">
 
 // Function called when the form is submitted.
@@ -46,23 +47,28 @@ window.onload = init;
 
 <style type="text/css">
 select {
-background-image:url(Image/Icon/arrow.png);
-background-repeat:no-repeat;
-background-position:350px;
 width:400px;
 padding:5px;
 margin-top:8px;
 line-height:1.5;
-border-radius:5px;
 background-color:#fff;
 color:#000;
 -webkit-appearance:none;
-box-shadow:inset 0 0 10px 0 rgba(0,0,0,0.6);
 outline:none;
 font-weight:bold;
 }
 </style>
 <link rel="stylesheet" href="welcome.css">
+<link type="text/css" rel="stylesheet" href="jquery.mmenu.css" />
+<script type="text/javascript">
+$(document).ready(function() {
+    // run test on initial page load
+    checkSize();
+
+    // run test on resize of the window
+    $(window).resize(checkSize);
+});
+</script>
 </head>
 
 <body>
@@ -75,13 +81,14 @@ font-weight:bold;
     <h2 class="title">Centre for Optical Fibre Technology</h2>
    </div>
   </header>
-  <div class="cssmenu"><ul>
+  <div id="burger" style="width:100%; background-color: #003478; height: 35px; display: none;"><a href="#menu"><img class="hamburger" src="Image/Icon/burger.png" alt="=" ></a></div>
+   <nav class="cssmenu" id="menu"><ul>
        <span id="nav_first"><li><a id = "modal_trigger" href="#modal">Login</a></li></span>
          <span id="nav_hide" style="display:none"></span>
            <li><a href="results.php">Facility List</a></li>
            <li><a href="orderHistory.php">Order History</a></li>
        </ul>
-  </div>
+  </nav>
 
 <?php
 
@@ -147,7 +154,7 @@ if (isset($_SESSION['valid_user'])){ ?>
   $num_results = $result->num_rows;
 
 ?>
-<div class="content"> 
+<div class="content" style="font-size: 0.9em;"> 
 	<h3 style="text-align:center;color:#0b78a1;margin-top:50px">Facility Delete</h3><hr>
   <form id="deleteListForm" action="processDeleteFacility.php" method="post" style="text-align: center;">
   	<div class="select_join">
@@ -167,4 +174,14 @@ if (isset($_SESSION['valid_user'])){ ?>
 </footer>
 </div>
 </body>
+<script type="text/javascript">
+function checkSize(){
+  if ($(".title").css("float") != "right" ){
+    document.getElementById("burger").style.display = '';
+    $(function() {
+      $('nav#menu').mmenu();
+    });
+  }
+}
+</script>
 </html>

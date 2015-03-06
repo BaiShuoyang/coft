@@ -12,13 +12,9 @@ $db_conn = new mysqli('localhost', 'root', 'fyp.2013', 'coft');
   }
 
 //Check if the email has been used
-$query_external = "SELECT * FROM external_user WHERE email='$email'";
+$query_normal = "SELECT * FROM normal_user WHERE email='$email'";
  
-$result_external = $db_conn->query($query_external);
-
-$query_internal = "SELECT * FROM internal_user WHERE email='$email'";
- 
-$result_internal = $db_conn->query($query_internal);
+$result_normal = $db_conn->query($query_normal);
 
 $query_admin = "SELECT * FROM admin_user WHERE email='$email'";
  
@@ -29,20 +25,11 @@ $result_admin = $db_conn->query($query_admin);
 $token = md5(date('r', time())); 
 
 //check if the email exists in the database
-if($result_external->num_rows >0){
-	$identity = "external";
-    $query_external2 = "UPDATE external_user SET token = '$token' WHERE email='$email'";
-    $result_external2 = $db_conn->query($query_external2);
-    if(!$result_external2){
-    	echo '<script type="text/javascript">alert("Error: Updating failed. Please try again later.");</script>';
-     	exit;
-    }
-
-}else if($result_internal->num_rows >0){
-	$identity = "internal";
-	$query_internal2 = "UPDATE internal_user SET token = '$token' WHERE email='$email'";
-    $result_internal2 = $db_conn->query($query_internal2);
-    if(!$result_internal2){
+if($result_normal->num_rows >0){
+	$identity = "normal";
+    $query_normal2 = "UPDATE normal_user SET token = '$token' WHERE email='$email'";
+    $result_normal2 = $db_conn->query($query_normal2);
+    if(!$result_normal2){
     	echo '<script type="text/javascript">alert("Error: Updating failed. Please try again later.");</script>';
      	exit;
     }
@@ -64,8 +51,19 @@ if($result_external->num_rows >0){
 
 }
 
-$htmlbody = "
-Dear user,
+  $query_admin = "SELECT * FROM admin_user";
+  $result_admin = $db_conn->query($query_admin);
+
+  if(!$result_admin){
+    echo '<script type="text/javascript">alert("Your query to retrieve admin information failed.");</script>';
+    include 'results.php';
+    exit;
+  }
+
+  $row_admin = $result_admin ->fetch_assoc();
+  $admin_email = $row['email'];
+
+$htmlbody = "Dear user,
 
 A request has been made to reset your coft account password. 
 Click on the URL below and proceed with resetting your password.
@@ -91,23 +89,17 @@ $subject = 'COFT Password Reset Request';
 $random_hash = md5(date('r', time())); 
 
 //define the headers we want passed. Note that they are separated with \r\n 
-$headers = "From: Centre for Optical Fibre Technology\r\nBCC:austinbai927@gmail.com"; //bcc administrator
+$headers = "From: Centre for Optical Fibre Technology\r\nBCC:$admin_email"; //bcc administrator
 
 //add boundary string and mime type specification 
 $headers .= "\r\nContent-Type: multipart/mixed; boundary=\"PHP-mixed-".$random_hash."\""; 
 
-//define the body of the message.
-$message = "--PHP-mixed-$random_hash\r\n"."Content-Type: multipart/alternative; boundary=\"PHP-alt-$random_hash\"\r\n\r\n";
-$message .= "--PHP-alt-$random_hash\r\n"."Content-Type: text/plain; charset=\"iso-8859-1\"\r\n"."Content-Transfer-Encoding: 7bit\r\n\r\n";
-
-
 //Insert the html message.
-$message .= $htmlbody;
-$message .="\r\n\r\n--PHP-alt-$random_hash--\r\n\r\n";
+$message = $htmlbody;
 
 
 //send the email
-$mail = mail( $to, $subject , $message, $headers, '-faustinbai927@gmail.com' );
+$mail = mail( $to, $subject , $message, $headers, '-f'.$admin_email );
 
 
     unset($email);

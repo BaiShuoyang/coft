@@ -7,7 +7,6 @@ $description = $_POST['Description'];
 $quantity = $_POST['Quantity'];
 if(isset($_POST['Price'])) {$price = $_POST['Price'];}
 if(isset($_POST['IsClean'])) {$isCleanRoomFacility = $_POST['IsClean'];}else{$isCleanRoomFacility="0";}
-if(isset($_POST['IsFab'])) {$isFabricationFacility = $_POST['IsFab']; $price = "0";}else{$isFabricationFacility="0";}
 // $time = 60*$_POST['Time']; //The time unit user inputs is in hour, need to convert to minutes
 if(isset($_POST['IsUnpublish'])) {$isUnpublish = $_POST['IsUnpublish'];}else{$isUnpublish="0";}
 if(isset($_POST['Announcement'])) {$announcement = $_POST['Announcement'];}else{$announcement=" ";}
@@ -20,12 +19,12 @@ $need_remind = $_POST['Need_remind'];
 
 
 $day = '';
-for($i = 0; $i < 7; $i++){
+for($i = 0; $i < 5; $i++){
 	if(isset($available_day[$i])){
 		$day = $day.$available_day[$i].",";
 	}
 }
-$day = trim($day, ",");
+$day = trim($day, ","); //Remove the last , after the last element
 
 
 //Check the uploaded files 
@@ -33,6 +32,12 @@ $photo_dir = array();
 
 if(isset($_FILES['Photo'])){
     $errors= array();
+    $photo_number = sizeof($_FILES['Photo']['tmp_name']);
+    if($photo_number > 4){
+        echo '<script type="text/javascript">alert("You can only upload up to four photos.");</script>';
+        include 'results.php';
+        exit;
+    }
 	foreach($_FILES['Photo']['tmp_name'] as $key => $tmp_name ){
 
 		$file_name = $_FILES['Photo']['name'][$key];
@@ -134,12 +139,12 @@ Value: 8; A PHP extension stopped the file upload. PHP does not provide a way to
     
 if($_FILES['Photo']['error'][0] === UPLOAD_ERR_NO_FILE){
      $query_update = "UPDATE item
-                    SET facility_name = '$itemname', alias = '$alias', description = '$description', isCleanRoomFacility = $isCleanRoomFacility, isFabricationFacility = $isFabricationFacility, quantity = '$quantity', price = '$price', charge_internal = '$charge_internal', 
+                    SET facility_name = '$itemname', alias = '$alias', description = '$description', isCleanRoomFacility = $isCleanRoomFacility, quantity = '$quantity', price = '$price', charge_internal = '$charge_internal', 
                     charge_external = '$charge_external', available_day = '$day', start_publish = '$start', end_publish = '$end', isUnpublish = $isUnpublish, announcement = '$announcement', need_remind = $need_remind
                     WHERE facility_name='$itemname'";
 }else{
     $query_update = "UPDATE item
-                    SET facility_name = '$itemname', alias = '$alias', description = '$description', isCleanRoomFacility = $isCleanRoomFacility, isFabricationFacility = $isFabricationFacility, quantity = '$quantity', price = '$price', charge_internal = '$charge_internal', 
+                    SET facility_name = '$itemname', alias = '$alias', description = '$description', isCleanRoomFacility = $isCleanRoomFacility, quantity = '$quantity', price = '$price', charge_internal = '$charge_internal', 
                     charge_external = '$charge_external', available_day = '$day', start_publish = '$start', end_publish = '$end', isUnpublish = $isUnpublish, announcement = '$announcement', need_remind = $need_remind,
                     photo1 = '$photo_dir[0]', photo2 = '$photo_dir[1]', photo3 = '$photo_dir[2]', photo4 = '$photo_dir[3]' 
                     WHERE facility_name='$itemname'";
@@ -160,11 +165,11 @@ if($_FILES['Photo']['error'][0] === UPLOAD_ERR_NO_FILE){
 
 if($_FILES['Photo']['error'][0] === UPLOAD_ERR_NO_FILE){
     $query = "INSERT INTO item
-    VALUES (NULL, '$itemname', '$alias', '$description', $isCleanRoomFacility, $isFabricationFacility, '$quantity', '$price', '$charge_internal', '$charge_external',
+    VALUES (NULL, '$itemname', '$alias', '$description', $isCleanRoomFacility, '$quantity', '$price', '$charge_internal', '$charge_external',
     		'$day', '$start', '$end', $isUnpublish, '$announcement', '', '', '', '', $need_remind)";
 }else{
     $query = "INSERT INTO item
-    VALUES (NULL, '$itemname', '$alias', '$description', $isCleanRoomFacility, $isFabricationFacility, '$quantity', '$price', '$charge_internal', '$charge_external',
+    VALUES (NULL, '$itemname', '$alias', '$description', $isCleanRoomFacility, '$quantity', '$price', '$charge_internal', '$charge_external',
             '$day', '$start', '$end', $isUnpublish, '$announcement', '$photo_dir[0]', '$photo_dir[1]', '$photo_dir[2]', '$photo_dir[3]', $need_remind)";
 }
     $result = $db_conn->query($query);

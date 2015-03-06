@@ -51,7 +51,6 @@ $db_user->close();
 <script type="text/javascript" src="js/jquery-ajax.js"></script>
 
 <script type="text/javascript">
-
 function checkBook(){
 
   var startNode = document.getElementById("datetimepicker1");
@@ -74,54 +73,41 @@ function checkBook(){
     return false;
   }
   
-  //Use XMLHTTP instead of Active X because some browsers will disable Active X by default
-  var xmlhttp;
-	if (window.XMLHttpRequest)
-	  {// code for IE7+, Firefox, Chrome, Opera, Safari
-	  xmlhttp=new XMLHttpRequest();
-	  }
-	else
-	  {// code for IE6, IE5
-	  xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-	  }
-	xmlhttp.onreadystatechange=function()
-	  {
-	  if (xmlhttp.readyState==4 && xmlhttp.status==200) //When readyState is 4 and status is 200, the response is ready
-		{
-		msg = xmlhttp.responseText;
-			if(msg == 'Conflict')
-			{   //Conflict with the time interval
-				alert("The time slot has already been booked by someone else. Please try other slots.");
-				return false;
-			} 
-		  if(msg == 'Ok'){
-			  // There is no conflict for the booking time interval, enable the button.
-			  document.getElementById("checkButton").style.display = 'none';
-			  document.getElementById("bookButton").style.display = '';
-			  document.getElementById("bookButton").disabled = false;
-			  document.getElementById("datetimepicker1").disabled = true;
-			  document.getElementById("datetimepicker2").disabled = true;
-			  return true;
-			}
-		  if(msg == 'Empty'){
-			// If the user has not finished inserting
-			return false;
-		  }
-		  if(msg == 'NotAllowed')
-			{   //The days of the week are not allowed
-				alert("The days of the week you booked are not valid.");
-				return false;
-			} 
-		  if(msg == 'BeyondOneMonth')
-			{  //The booking is more than one month later
-				alert("You can only make bookings within the following one month.");
-				return false;
-			}
-		
-		}
-	  }
-	xmlhttp.open("GET","checkBook.php?start="+ start +"&end="+ end + "&itemname=<?php echo $itemname ?>",true);
-	xmlhttp.send();
+  $.ajax({ 
+  type: "POST", 
+  url: "checkBook.php", 
+  data: "start="+ start +"&end="+ end + "&itemname=<?php echo $itemname ?>", 
+    success: function(msg){ 
+      if(msg == 'Conflict')
+        {   //Conflict with the time interval
+            alert("The time slot has already been booked by someone else. Please try other slots.");
+            return false;
+        } 
+      if(msg == 'Ok'){
+          // There is no conflict for the booking time interval, enable the button.
+          document.getElementById("checkButton").style.display = 'none';
+          document.getElementById("bookButton").style.display = '';
+          document.getElementById("bookButton").disabled = false;
+      	  document.getElementById("datetimepicker1").disabled = true;
+      	  document.getElementById("datetimepicker2").disabled = true;
+          return true;
+        }
+      if(msg == 'Empty'){
+        // If the user has not finished inserting
+        return false;
+      }
+      if(msg == 'NotAllowed')
+        {   //The days of the week are not allowed
+            alert("The days of the week you booked are not valid.");
+            return false;
+        } 
+      if(msg == 'BeyondOneMonth')
+        {  //The booking is more than one month later
+            alert("You can only make bookings within the following one month.");
+            return false;
+        }
+    }
+  });
 
 }
 
@@ -159,12 +145,12 @@ img{
   box-shadow: 1px 1px 5px transparent; 
 }
 
-/*a:hover img:not(.logo) { 
+a:hover img:not(.logo) { 
   border: solid 1px #CCC; 
   -moz-box-shadow: 1px 1px 5px #999; 
   -webkit-box-shadow: 1px 1px 5px #999; 
   box-shadow: 1px 1px 5px #999; 
-}*/
+}
 </style>
 <script type="text/javascript" src='fullcalendar/lib/jquery.min.js'></script>
 <script type="text/javascript" src='fullcalendar/lib/moment.min.js'></script>
@@ -173,21 +159,6 @@ img{
 var jQuery_calendar = $.noConflict(true);
 </script>
 <script type="text/javascript" src="js/jquery.leanModal.min.js"></script>
-<script src="js/jquery-1.11.0.min.js"></script>
-<script type="text/javascript" src="js/jquery.mmenu.min.js"></script>
-<script type="text/javascript">
-var jQuery_menu = $.noConflict();
-</script>
-
-<script type="text/javascript">
-$(document).ready(function() {
-    // run test on initial page load
-    checkSize();
-
-    // run test on resize of the window
-    $(window).resize(checkSize);
-});
-</script>
 
 <script type="text/javascript">
     
@@ -224,7 +195,6 @@ $(document).ready(function() {
 
 </script>
 <link rel="stylesheet" href="welcome.css">
-<link type="text/css" rel="stylesheet" href="jquery.mmenu.css" />
 </head>
 <body onload="auto()">
 <div id="wrapper">
@@ -236,14 +206,13 @@ $(document).ready(function() {
     <h2 class="title">Centre for Optical Fibre Technology</h2>
    </div>
   </header>
-  <div id="burger" style="width:100%; background-color: #003478; height: 35px; display: none;"><a href="#menu"><img class="hamburger" src="Image/Icon/burger.png" alt="=" ></a></div>
-  <nav class="cssmenu" id="menu"><ul>
+  <div class="cssmenu"><ul>
        <span id="nav_first"><li><a id = "modal_trigger" href="#modal">Login</a></li></span>
          <span id="nav_hide" style="display:none"></span>
            <li><a href="results.php">Facility List</a></li>
            <li><a href="orderHistory.php">Order History</a></li>
        </ul>
-  </nav>
+  </div>
 
   <div id="crumb">
        <ul>
@@ -383,7 +352,7 @@ if(days.indexOf("Sunday")==-1){
   <div id="slider">
   <form name="ff" style="margin:0">
     <table>
-    <tr><td align="left" style="text-align:center"><img src="<?php echo $row['photo1'] ?>" name="show" width="360" height="270" alt="image" align="left"></td></tr>
+    <tr><td align="left" ><img src="<?php echo $row['photo1'] ?>" name="show" width="360" height="270" alt="image" align="left"></td></tr>
     <tr style="display:none;"><td align="center" style="border:1px solid; border-color:#C0C0C0">
     <select name="slide" onChange="rotate(this.selectedIndex);">
     <?php if($row['photo1']!=''){?><option value="<?php echo $row['photo1'] ?>" class="img-shadow">Description for photo-1 </option><?php }?>
@@ -493,14 +462,3 @@ jQuery_picker('#datetimepicker2').datetimepicker({
 </script>
 </html>
 <?php $db->close();?>
-
-<script type="text/javascript">
-function checkSize(){
-  if (jQuery_menu(".title").css("float") != "right" ){
-    document.getElementById("burger").style.display = '';
-    jQuery_menu(function() {
-      jQuery_menu('nav#menu').mmenu();
-    });
-  }
-}
-</script>

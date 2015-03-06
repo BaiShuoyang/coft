@@ -31,22 +31,15 @@
 
 		 if(($time_difference < 1440.00) && ($row['reminded']==0) && ($time_difference > 0.00)){   //Send reminding sms 24 hours before the return time
 
-		 		$query1 = "select * from external_user where username='".$row['username']."'";
-				$query2 = "select * from internal_user where username='".$row['username']."'";
-				$query3 = "select * from admin_user where username='".$row['username']."'";
+		 		$query1 = "select * from normal_user where username='".$row['username']."'";
+				$query2 = "select * from admin_user where username='".$row['username']."'";
 				  
-				$result_external = $db_conn->query($query1);
-				$result_internal = $db_conn->query($query2);
-				$result_admin = $db_conn->query($query3);
+				$result_normal = $db_conn->query($query1);
+				$result_admin = $db_conn->query($query2);
 
-				if ($result_external->num_rows >0 ){
+				if ($result_normal->num_rows >0 ){
 
-					$row_user = $result_external ->fetch_assoc();
-				    $user_phone = $row_user['phone'];
-
-				  }else if ($result_internal->num_rows >0 ){
-
-				    $row_user = $result_internal ->fetch_assoc();
+					$row_user = $result_normal ->fetch_assoc();
 				    $user_phone = $row_user['phone'];
 
 				  }else if ($result_admin->num_rows >0 ){

@@ -13,14 +13,9 @@ $db_conn = new mysqli('localhost', 'root', 'fyp.2013', 'coft');
      exit;
   }
 
-if($identity=="internal"){
+if($identity=="normal"){
 
-	$query = "UPDATE internal_user SET password = '$password' WHERE token = '$token'";
-	$result = $db_conn->query($query);
-
-}else if($identity=="external"){
-
-	$query = "UPDATE external_user SET password = '$password' WHERE token = '$token'";
+	$query = "UPDATE normal_user SET password = '$password' WHERE token = '$token'";
 	$result = $db_conn->query($query);
 
 }else if($identity=="admin"){

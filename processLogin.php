@@ -15,35 +15,25 @@ if (isset($_POST['username']) && isset($_POST['loginPwd']))
      exit;
   }
 
-  $query = "select * from external_user where username='".$username."'and password='".md5($password)."'";
-  $query2 = "select * from internal_user where username='".$username."'and password='".md5($password)."'";
-  $query3 = "select * from admin_user where username='".$username."'and password='".md5($password)."'";
+  $query = "select * from normal_user where username='".$username."'and password='".md5($password)."'";
+  $query2 = "select * from admin_user where username='".$username."'and password='".md5($password)."'";
   
-  $result_external = $db_conn->query($query);
-  $result_internal = $db_conn->query($query2);
-  $result_admin = $db_conn->query($query3);
+  $result_normal= $db_conn->query($query);
+  $result_admin = $db_conn->query($query2);
 
-  if ($result_external->num_rows >0 )
+  if ($result_normal->num_rows >0 )
   {
     // if they are in the database register the user id
-    $row = $result_external ->fetch_assoc();
+    $row = $result_normal ->fetch_assoc();
     $username = $row['username'];
     $_SESSION['valid_user'] = $username;  
     if($row['approved']==1){
-        $_SESSION['user_identity'] = "external";
+        $_SESSION['user_identity'] = "normal";
     }else{
-        $_SESSION['user_identity'] = "external_nonapproved";
+        $_SESSION['user_identity'] = "normal_nonapproved";
     }
     header("Location: results.php"); 
     exit(); 
-  }else if ($result_internal->num_rows >0 ){
-    $row = $result_internal ->fetch_assoc();
-    $username = $row['username'];
-    $_SESSION['valid_user'] = $username;  
-    $_SESSION['user_identity'] = "internal";
-    header("Location: results.php"); 
-    exit(); 
-
   }else if ($result_admin->num_rows >0 ){
     $row = $result_admin ->fetch_assoc();
     $username = $row['username'];

@@ -11,7 +11,7 @@ $addline1 = $_POST['Addline1'];
 $addline2 = $_POST['Addline2'];
 $postal = $_POST['Postal'];
 $phone = $_POST['Phone'];
-$company = $_POST['Company'];
+$faculty = $_POST['Faculty'];
 $isPasswordChanged = $_POST['isPasswordChanged'];
 // $approved = 0;
 
@@ -25,37 +25,26 @@ $db_conn = new mysqli('localhost', 'root', 'fyp.2013', 'coft');
 $password = md5($password);
 
 
-if(($user_identity == "external") || ($user_identity == "external_nonapproved")){
+if(($user_identity == "normal") || ($user_identity == "normal_nonapproved")){
 
   if($isPasswordChanged=="yes"){
-      	$sql = "UPDATE external_user
-      			SET password ='$password', email = '$email', addline1 = '$addline1', addline2 = '$addline2', postalcode = '$postal', phone = '$phone', company = '$company' 
+      	$sql = "UPDATE normal_user
+      			SET password ='$password', email = '$email', addline1 = '$addline1', addline2 = '$addline2', postalcode = '$postal', phone = '$phone', faculty = '$faculty' 
       			WHERE user_id = '$userid'";
     }else{
-        $sql = "UPDATE external_user
-            SET email = '$email', addline1 = '$addline1', addline2 = '$addline2', postalcode = '$postal', phone = '$phone', company = '$company' 
+        $sql = "UPDATE normal_user
+            SET email = '$email', addline1 = '$addline1', addline2 = '$addline2', postalcode = '$postal', phone = '$phone', faculty = '$faculty' 
             WHERE user_id = '$userid'";
     }
-
-}else if($user_identity == "internal"){
-  if($isPasswordChanged=="yes"){
-    	$sql = "UPDATE internal_user
-    			SET password ='$password', email = '$email', addline1 = '$addline1', addline2 = '$addline2', postalcode = '$postal', phone = '$phone', company = '$company' 
-    			WHERE user_id = '$userid'";
-  }else{
-        $sql = "UPDATE internal_user
-          SET email = '$email', addline1 = '$addline1', addline2 = '$addline2', postalcode = '$postal', phone = '$phone', company = '$company' 
-          WHERE user_id = '$userid'";        
-  }
 
 }else if($user_identity == "admin"){
   if($isPasswordChanged=="yes"){
     	$sql = "UPDATE admin_user
-    			SET password ='$password', email = '$email', addline1 = '$addline1', addline2 = '$addline2', postalcode = '$postal', phone = '$phone', company = '$company' 
+    			SET password ='$password', email = '$email', addline1 = '$addline1', addline2 = '$addline2', postalcode = '$postal', phone = '$phone', faculty = '$faculty' 
     			WHERE user_id = '$userid'";
   }else{
           $sql = "UPDATE admin_user
-          SET email = '$email', addline1 = '$addline1', addline2 = '$addline2', postalcode = '$postal', phone = '$phone', company = '$company' 
+          SET email = '$email', addline1 = '$addline1', addline2 = '$addline2', postalcode = '$postal', phone = '$phone', faculty = '$faculty' 
           WHERE user_id = '$userid'";
   }
 
@@ -69,7 +58,6 @@ if(($user_identity == "external") || ($user_identity == "external_nonapproved"))
   if(!$result){
   	 echo '<script type="text/javascript">alert("Your query has failed.");</script>';
   	 $db_conn->close();
-  	 session_destroy();
   	 include 'editUserInformation.php';
      exit;
   }else{

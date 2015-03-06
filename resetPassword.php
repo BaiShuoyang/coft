@@ -20,14 +20,9 @@ $db_conn = new mysqli('localhost', 'root', 'fyp.2013', 'coft');
      exit;
   }
 
-if($identity=="internal"){
+if($identity=="normal"){
 
-	$query = "SELECT * FROM internal_user WHERE token = '$token'";
-	$result = $db_conn->query($query);
-
-}else if($identity=="external"){
-
-	$query = "SELECT * FROM external_user WHERE token = '$token'";
+	$query = "SELECT * FROM normal_user WHERE token = '$token'";
 	$result = $db_conn->query($query);
 
 }else if($identity=="admin"){
@@ -51,7 +46,19 @@ if(!$result){
 <title>Paperless Lab</title>
 <meta charset="utf-8">
 <link rel="stylesheet" href="welcome.css">
+<!-- Below javascript libraries enable the function of "required" for ie and safari-->
+<!-- cdn for modernizr, if you haven't included it already -->
+<script src="http://cdn.jsdelivr.net/webshim/1.12.4/extras/modernizr-custom.js"></script>
+<!-- polyfiller file to detect and load polyfills -->
+<script src="http://cdn.jsdelivr.net/webshim/1.12.4/polyfiller.js"></script>
+<script>
+  webshims.activeLang('en-AU'); //Set the format of the date to mm/dd/yyyy
+  webshims.setOptions('waitReady', false);
+  webshims.polyfill('forms forms-ext');
+</script>
+
 <script type="text/javascript" src="js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="js/jquery.mmenu.min.js"></script>
 <style type="text/css">
 table{
 width:100%;
@@ -112,6 +119,16 @@ function init() {
 // Assign an event listener to the window's load event:
 window.onload = init;
 </script>
+<link type="text/css" rel="stylesheet" href="jquery.mmenu.css" />
+<script type="text/javascript">
+$(document).ready(function() {
+    // run test on initial page load
+    checkSize();
+
+    // run test on resize of the window
+    $(window).resize(checkSize);
+});
+</script>
 </head>
 
 <body>
@@ -124,19 +141,20 @@ window.onload = init;
     <h2 class="title">Centre for Optical Fibre Technology</h2>
    </div>
   </header>
-    <div class="cssmenu"><ul>
+  <div id="burger" style="width:100%; background-color: #003478; height: 35px; display: none;"><a href="#menu"><img class="hamburger" src="Image/Icon/burger.png" alt="=" ></a></div>
+   <nav class="cssmenu" id="menu"><ul>
            <li></li>
            <li></li>
        </ul>
-  </div>
+  </nav>
 
 <div class="content" style="min-height:450px"> 
   <form id="resetForm" action="processReset.php" method="post" style="text-align: center; margin-top:50px">
     <table cellspacing="20"> 
     	<tr><td class="tag">New Password:</td>
-		<td><input type="text" name="Password" id="Password" size = "30" required class="box"></td></tr>
+		<td><input type="password" name="Password" id="Password" size = "30" required class="box"></td></tr>
 		<tr><td class="tag">Confirm Password:</td>
-		<td><input type="text" name="ConfirmPassword" id="ConfirmPassword" size = "30" required class="box"></td></tr>
+		<td><input type="password" name="ConfirmPassword" id="ConfirmPassword" size = "30" required class="box"></td></tr>
 		<tr><td colspan="2" style="text-align:center"><input type="submit" name="Submit" id="Submit" value="Confirm" class="button">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	    <a href="index.php" class="back_btn">Cancel</a></td>
 	    </tr>
@@ -155,3 +173,13 @@ window.onload = init;
 $db_conn->close();
 ?>
 </html>
+<script type="text/javascript">
+function checkSize(){
+  if ($(".title").css("float") != "right" ){
+    document.getElementById("burger").style.display = '';
+    $(function() {
+      $('nav#menu').mmenu();
+    });
+  }
+}
+</script>

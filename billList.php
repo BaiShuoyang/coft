@@ -1,9 +1,8 @@
 <?php
 session_start();
-//userList.php
+//billList.php
 
-$username = $_GET['username'];
-$user_identity = $_GET['user_identity']; //This value is from booking, so it can be "internal, external"
+$booking_id = $_GET['booking_id'];
 
   $db = new mysqli('localhost','root','fyp.2013','coft');
 
@@ -12,26 +11,13 @@ $user_identity = $_GET['user_identity']; //This value is from booking, so it can
      exit;
   }
 
-if($username == "admin"){//Only admin's username is "admin"
-   $query = "SELECT * FROM admin_user WHERE username = '".$username."'";
-}else if(($user_identity == "internal") || ($user_identity == "external")){
-	$query = "SELECT * FROM normal_user WHERE username = '".$username."'";
-}else{
-	echo '<script type="text/javascript">alert("Error: User identity is not valid.");</script>';
-  exit;
-}
+	$query = "SELECT * FROM billing_information WHERE booking_id = '".$booking_id."'";
+
 
   $result = $db->query($query);
 
   if(!$result){
   	 echo '<script type="text/javascript">alert("Your query has failed.");</script>';
-     exit;
-  }
-
-  $num_results = $result->num_rows;
-
-  if($num_results!=1){
-     echo '<script type="text/javascript">alert("Error: No record or more than one record has the same name in database.");</script>';
      exit;
   }
 
@@ -62,29 +48,14 @@ cursor: pointer;
 <script type="text/javascript" src="js/jquery.mmenu.min.js"></script>
 <link rel="stylesheet" href="welcome.css">
 <style type="text/css">
-table{
-width:100%;
-margin-top:5px;
-margin-bottom:5px;
-margin-left: auto;
-margin-right: auto;
-
-}
-
-tr{
-margin-left: auto;
-margin-right: auto;
-}
-
 td{
-text-align: left;
-padding-left: 20px;
+  text-align: left;
+  padding-left: 15px;
 }
+
 td.tag{
 text-align: right;
-}
-td.input{
-width:52%;
+width:40%;
 }
 
 .box{
@@ -114,7 +85,7 @@ $(document).ready(function() {
    </div>
   </header>
   <div id="burger" style="width:100%; background-color: #003478; height: 35px; display: none;"><a href="#menu"><img class="hamburger" src="Image/Icon/burger.png" alt="=" ></a></div>
-     <nav class="cssmenu" id="menu"><ul>
+   <nav class="cssmenu" id="menu"><ul>
        <span id="nav_first"><li><a id = "modal_trigger" href="#modal">Login</a></li></span>
          <span id="nav_hide" style="display:none"></span>
            <li><a href="results.php">Facility List</a></li>
@@ -171,18 +142,11 @@ if (isset($_SESSION['valid_user'])){ ?>
 </script>
   
 
-<div class="content" style="font-size: 0.9em;"> 
-   <h3 style="text-align:center;color:#0b78a1;margin-top:50px;">User Information</h3><hr>
+<div class="content" style="font-size:0.9em;"> 
+   <h3 style="text-align:center;color:#0b78a1;margin-top:50px;">Billing Information</h3><hr>
   	<table cellspacing="20"> 
-  		<?php if(($user_identity == "external") || ($user_identity == "external_nonapproved")){?>
-  		 <tr><td class="tag">Registration Date:</td>
-		<td><p style="margin-left:50px;"><?php echo $row['registration_date']; ?></p></td></tr>
-		<?php }?>
-		<tr><td class="tag">Username:</td>
-		<td class="input"><input type="text" name="Username" id="Username" size = "30" value="<?php echo $row['username']?>" required class="box" readonly></td>
-		</tr>
-		<tr><td class="tag">Password:</td>
-		<td class="input"><input type="password" name="Password" id="Password" size = "30" required class="box" readonly></td>
+		<tr><td class="tag">Name:</td>
+		<td class="input"><input type="text" name="Username" id="Username" size = "30" value="<?php echo $row['name']?>" required class="box" readonly></td>
 		</tr>
     <tr><td class="tag">Email Address:</td>
 	    <td class="input"><input type="email" name="Email" id="Email" size = "30" value="<?php echo $row['email']?>" required class="box" readonly></td>
@@ -200,7 +164,7 @@ if (isset($_SESSION['valid_user'])){ ?>
 		<td class="input"><input type="text" name="Phone" id="Phone" size = "30" value="<?php echo $row['phone']?>" required class="box" readonly></td>
 		</tr>
     <tr><td class="tag">Faculty:</td>
-    <td class="input"><input type="text" name="Faculty" id="Faculty" size = "30" value="<?php echo $row['faculty']?>" required class="box" readonly></td>
+    <td class="input"><input type="text" name="Faculty" id="Faculty" size = "30" value="<?php echo $row['organization']?>" required class="box" readonly></td>
 		</tr>
 	</table>
 </div>

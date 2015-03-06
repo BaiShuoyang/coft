@@ -4,6 +4,15 @@ session_start();
 
 $approveEmail = $_GET['approveEmail'];
 $denyEmail = $_GET['denyEmail'];
+if(isset($_POST['Approved_access'])){
+  $facilities = $_POST['Approved_access'];
+  $approved_access = '';
+  $number_facility = sizeof($facilities);
+  for($i = 0; $i < $number_facility; $i++){
+      $approved_access = $approved_access.$facilities[$i].",";
+  }
+  $approved_access = trim($approved_access, ","); //Remove the last , after the last element
+}
 
 if(isset($approveEmail)){
 
@@ -14,7 +23,7 @@ if(isset($approveEmail)){
      exit;
   }
 
-  $query_approve = "select * from external_user where email = '".$approveEmail."'";
+  $query_approve = "select * from normal_user where email = '".$approveEmail."'";
 
   $result_approve = $db->query($query_approve);
 
@@ -27,7 +36,7 @@ if(isset($approveEmail)){
 
   $row_approve = $result_approve->fetch_assoc();
 
-  $query_update = "UPDATE external_user SET approved = 1 WHERE email = '".$approveEmail."'";
+  $query_update = "UPDATE normal_user SET approved = 1, facility_access = '$approved_access' WHERE email = '".$approveEmail."'";
 
   $result_update = $db->query($query_update);
 
@@ -36,16 +45,16 @@ if(isset($approveEmail)){
                 $db->close();
     			exit();
     }else{ 
-				      $headers = "From: Centre for Optical Fibre Technology\r\nBCC:austinbai927@gmail.com"; //bcc administrator
+				      $headers = "From: Centre for Optical Fibre Technology";
 
 				  		// the message
 						$msg = "Dear ".$row_approve['username'].",\n\nThank you for registration in Centre for Optical Fibre Technology. Your account has been approved by the system administrator. You can start to make bookings with your account. \n\nIf you have any other queries, please contact us through email.\n\n\n\nRegards,\nCOFT Office\n\n\nThis is an automatically generated confirmation email. Please do not reply directly.";
 
 					// send email
-					mail($approveEmail,"Your account in COFT has been approved",$msg,$headers,'-faustinbai927@gmail.com');
+					mail($approveEmail,"Your account in COFT has been approved",$msg,$headers);
 
 	    		    header("Location: approveExternalUser.php"); 
-	                $db->close();
+	            $db->close();
 	    		    exit();
     }
 
@@ -58,7 +67,7 @@ if(isset($approveEmail)){
      exit;
   }
 
-  $query_deny = "select * from external_user where email = '".$denyEmail."'";
+  $query_deny = "select * from normal_user where email = '".$denyEmail."'";
 
   $result_deny = $db->query($query_deny);
 
@@ -69,7 +78,7 @@ if(isset($approveEmail)){
      exit;
   }
 
-  $query_update = "UPDATE external_user SET approved = -1 WHERE email = '".$denyEmail."'";
+  $query_update = "UPDATE normal_user SET approved = -1 WHERE email = '".$denyEmail."'";
 
   $result_update = $db->query($query_update);
 
@@ -78,13 +87,13 @@ if(isset($approveEmail)){
                 $db->close();
     			exit();
     }else{ 		
-    			$headers = "From: Centre for Optical Fibre Technology\r\nBCC:austinbai927@gmail.com"; //bcc administrator
+    			$headers = "From: Centre for Optical Fibre Technology"; //bcc administrator
 
 				  		// the message
 				$msg = "Dear ".$row_approve['username'].",\n\nThank you for registration in Centre for Optical Fibre Technology. Sorry to tell you that your account has been denied by the administrator. Thank you for your interest. \n\nIf you have any other queries, please contact us through email.\n\n\n\nRegards,\nCOFT Office\n\n\nThis is an automatically generated confirmation email. Please do not reply directly.";
 
 					// send email
-				mail($denyEmail,"Your account in COFT has been denied",$msg,$headers,'-faustinbai927@gmail.com');
+				mail($denyEmail,"Your account in COFT has been denied",$msg,$headers);
 
     		    header("Location: approveExternalUser.php"); 
             $db->close();

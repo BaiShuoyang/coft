@@ -17,11 +17,23 @@ color: #22b8f0;
 }
 
 </style>
+<!-- Below javascript libraries enable the function of "required" for ie and safari-->
+<!-- cdn for modernizr, if you haven't included it already -->
+<script src="http://cdn.jsdelivr.net/webshim/1.12.4/extras/modernizr-custom.js"></script>
+<!-- polyfiller file to detect and load polyfills -->
+<script src="http://cdn.jsdelivr.net/webshim/1.12.4/polyfiller.js"></script>
+<script>
+  webshims.activeLang('en-AU'); //Set the format of the date to mm/dd/yyyy
+  webshims.setOptions('waitReady', false);
+  webshims.polyfill('forms forms-ext');
+</script>
+
 <script type="text/javascript" src="js/jquery-1.11.0.min.js"></script>
 <script type="text/javascript" src="js/jquery.leanModal.min.js"></script>
 <script type="text/javascript" src="js/jquery.leanModalTerm.min.js"></script>
 <script language="javascript" src="js/jquery.js"></script>
 <script language="javascript" src="js/passwordStrengthMeter.js"></script>
+<script type="text/javascript" src="js/jquery.mmenu.min.js"></script>
 <script type="text/javascript">
 // Script - login.js
 
@@ -60,7 +72,7 @@ function validateForm() {
     var pos3 = phone.value.search(/^\+65[689][\d]{7}$/);
 
     if(pos3!=0){
-      alert("The phone number you typed in not in the proper format, please follow +6562345678");
+      alert("The phone number you typed in not in the proper format, please follow +6512345678");
       return false;
     }
 
@@ -88,7 +100,6 @@ window.onload = init;
 <script language="javascript">
 //For password strength checking
 	jQuery(document).ready(function() {
-		$('#Username').keyup(function(){$('#Result').html(passwordStrength($('#Password').val(),$('#Username').val()))})
 		$('#Password').keyup(function(){$('#Result').html(passwordStrength($('#Password').val(),$('#Username').val()))})
 	})
 	function showMore()
@@ -99,7 +110,7 @@ window.onload = init;
 <link rel="stylesheet" href="welcome.css">
 <style type="text/css">
 table{
-width:75%;
+width:84%;
 margin-top:5px;
 margin-bottom:5px;
 margin-left: auto;
@@ -113,19 +124,31 @@ margin-right: auto;
 }
 
 td{
-text-align: center;
-padding-left: 20px;
-width:50%;
+  text-align: left;
+  padding-left: 15px;
 }
+
 td.tag{
-text-align: left;
+text-align: right;
+width:40%;
+font-weight: bold;
 }
 
 .box{
-width:400px;
+width:300px;
 }
 
 </style>
+<link type="text/css" rel="stylesheet" href="jquery.mmenu.css" />
+<script type="text/javascript">
+$(document).ready(function() {
+    // run test on initial page load
+    checkSize();
+
+    // run test on resize of the window
+    $(window).resize(checkSize);
+});
+</script>
 </head>
 
 <body>
@@ -138,13 +161,14 @@ width:400px;
     <h2 class="title">Centre for Optical Fibre Technology</h2>
    </div>
   </header>
-  <div class="cssmenu"><ul>
+  <div id="burger" style="width:100%; background-color: #003478; height: 35px; display: none;"><a href="#menu"><img class="hamburger" src="Image/Icon/burger.png" alt="=" ></a></div>
+  <nav class="cssmenu" id="menu"><ul>
        <span id="nav_first"><li><a id = "modal_trigger" href="#modal">Login</a></li></span>
          <span id="nav_hide" style="display:none"></span>
            <li><a href="results.php">Facility List</a></li>
            <li><a href="orderHistory.php">Order History</a></li>
        </ul>
-  </div>
+  </nav>
 
 <?php
 
@@ -209,8 +233,24 @@ if (isset($_SESSION['valid_user'])){ ?>
 	$("#modal_trigger").leanModal({top : 200, overlay : 0.6, closeButton: ".back_btn" });
 </script>
   
+<?php
 
-<div class="content"> 
+  @ $db = new mysqli('localhost','root','fyp.2013','coft');
+
+  if (mysqli_connect_errno()) {
+     echo '<script type="text/javascript">alert("Error: Could not connect to database. Please try again later.");</script>';
+     exit;
+  }
+
+  $query = "SELECT * FROM item";
+
+  $result = $db->query($query);
+
+  $num_results = $result->num_rows;
+
+?>
+
+<div class="content" style="font-size:0.9em;"> 
    <h3 style="text-align:center;color:#0b78a1;margin-top:50px;">User Registration</h3><hr>
   <form id="regForm" action="processRegister.php" method="post" style="text-align: center;">
   	<table cellspacing="20"> 
@@ -231,8 +271,17 @@ if (isset($_SESSION['valid_user'])){ ?>
 		<td><input type="text" name="Postal" id="Postal" size = "30" required class="box"></td></tr>
 		<tr><td class="tag">Phone:</td>
 		<td><input type="text" name="Phone" id="Phone" size = "30" required class="box"></td></tr>
-    <tr><td class="tag">Company:</td>
+    <tr><td class="tag">Faculty:</td>
     <td><input type="text" name="Company" id="Company" size = "30" required class="box"></td></tr>
+    <tr><td class="tag">Select facilities to register for:</td>
+        <td><select name="Facility_access[]" id="Facility_access" required multiple size="5" class="box" style="height:auto">
+            <?php for ($i=0; $i < $num_results; $i++) {
+               $row = $result->fetch_assoc();
+              ?>
+            <option value="<?php echo $row['facility_name']?>"><?php echo $row['facility_name']?></option>
+           <?php }?>
+            </select><td>
+    </tr>
 		<tr><td colspan="2" style="text-align:center"><input type="checkbox" name="CheckTerm" id="CheckTerm" required value="checked"><a id = "modal_trigger2" href="#modalTerm" style="text-decoration: none;">I agree with the terms of service.</a></td></tr>
     <tr><td colspan="2" style="text-align:center"><input type="submit" name="Submit" id="Submit" value="Register" class="button">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     <a href="index.php" class="back_btn">Cancel</a></td>
@@ -242,11 +291,21 @@ if (isset($_SESSION['valid_user'])){ ?>
 </div>
 
 <script type="text/javascript">
-	$("#modal_trigger2").leanModalTerm({top : 100, overlay : 0.6, closeButton: ".back_btn" });
+	$("#modal_trigger2").leanModalTerm({top : 60, overlay : 0.6, closeButton: ".back_btn" });
 </script>
 
 <footer>Copyright &copy; 2014
 </footer>
 </div>
 </body>
+<script type="text/javascript">
+function checkSize(){
+  if ($(".title").css("float") != "right" ){
+    document.getElementById("burger").style.display = '';
+    $(function() {
+      $('nav#menu').mmenu();
+    });
+  }
+}
+</script>
 </html>
